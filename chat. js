@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function loadContacts() {
-        const apiUrl = 'https://<NAMA_DEPLOYMENT_ANDA>.vercel.app/api/contacts';
+        const apiUrl = 'https://agin-travel-backend.vercel.app/';
         
         fetch(apiUrl)
             .then(response => response.json())
@@ -85,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function loadChatHistory(contactId) {
         chatMessages.innerHTML = '';
-        const apiUrl = `https://<NAMA_DEPLOYMENT_ANDA>.vercel.app/api/chats/${contactId}`;
+        const apiUrl = `https://agin-travel-backend.vercel.app/}`;
 
         fetch(apiUrl)
             .then(response => response.json())
@@ -100,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (messageText !== '' && currentChatPartner) {
             addMessage(messageText, 'sent');
             
-            const apiUrl = 'https://<NAMA_DEPLOYMENT_ANDA>.vercel.app/api/messages';
+            const apiUrl ='https://agin-travel-backend.vercel.app/';
             fetch(apiUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -127,7 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function addContactToServer(email) {
-        const apiUrl = 'https://<NAMA_DEPLOYMENT_ANDA>.vercel.app/api/contacts';
+        const apiUrl = 'https://agin-travel-backend.vercel.app/';
         fetch(apiUrl, { 
             method: 'POST', 
             headers: { 'Content-Type': 'application/json' }, 
