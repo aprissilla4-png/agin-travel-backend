@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // --- KONEKSI KE BACKEND ANDA ---
             // Kode ini mengirimkan pesan ke server Anda di Vercel.
             // PASTIKAN ANDA MENGGANTI URL DI BAWAH INI!
-            fetch('https://nama-proyek-anda.vercel.app/api/kirim-pesan', { // <-- GANTI DENGAN URL API VERCEL ANDA
+            fetch('https://vercel.com/aprissilla4-pngs-projects/agin-travel-backend/42B6xakq9puxwFo6bDEvQQN2vkDf') 
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 // Pastikan body cocok dengan yang diharapkan backend Anda
