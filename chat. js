@@ -18,6 +18,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     loadContacts();
 
+    
+    response.setHeader('Access-Control-Allow-Origin', '*');
+    response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    response.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
+    if (request.method === 'OPTIONS') {
+        return response.status(200).end();
+    }
+
+    const contacts = [
+        { id: 1, name: "Kontak Contoh", lastMessage: "Halo!" }
+    ];
+    
+    return response.status(200).json(contacts);
+}
+
     if (addContactBtn && addContactModal && cancelBtn && submitBtn) {
         addContactBtn.addEventListener('click', () => addContactModal.classList.remove('hidden'));
         cancelBtn.addEventListener('click', () => addContactModal.classList.add('hidden'));
