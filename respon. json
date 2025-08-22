@@ -1,0 +1,5 @@
+[
+  { "sender": "me", "text": "Halo Budi, apa kabar?" },
+  { "sender": "contact", "text": "Baik! Kamu gimana?" },
+  { "sender": "me", "text": "Baik juga." }
+]
