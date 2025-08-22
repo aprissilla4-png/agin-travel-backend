@@ -1,0 +1,9 @@
+// Di dalam file: vercel.json
+{
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/api"
+    }
+  ]
+}
