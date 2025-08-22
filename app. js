@@ -2,6 +2,23 @@ const express = require('express');
 const cors = require('cors'); // 1. Impor paket cors
 const app = express();
 
+export default function handler(request, response) {
+    
+    response.setHeader('Access-Control-Allow-Origin', '*');
+    response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    response.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
+    if (request.method === 'OPTIONS') {
+        return response.status(200).end();
+    }
+
+    const contacts = [
+        { id: 1, name: "Kontak Contoh", lastMessage: "Halo!" }
+    ];
+    
+    return response.status(200).json(contacts);
+}
+
 // 2. Gunakan middleware cors SEBELUM rute API Anda
 // Opsi paling sederhana (mengizinkan semua origin):
 app.use(cors());
