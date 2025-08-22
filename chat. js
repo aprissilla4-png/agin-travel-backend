@@ -1,98 +1,187 @@
-// File: chat.js
-
 document.addEventListener('DOMContentLoaded', () => {
-    // Menghubungkan ke elemen HTML chat
+
+    // =================================================================
+    // BAGIAN 1: MENGHUBUNGKAN SEMUA ELEMEN DARI HTML
+    // =================================================================
+    
+    // Elemen Navigasi & Status
+    const chatHeaderTitle = document.querySelector('#chat h2');
+    const chatStatus = document.getElementById('chat-status');
+    const contactList = document.getElementById('contact-list');
+
+    // Elemen Area Chat
     const chatMessages = document.getElementById('chat-messages');
+    const chatInputArea = document.getElementById('chat-input-area');
     const messageInput = document.getElementById('message-input');
     const sendButton = document.getElementById('send-button');
+    
+    // Elemen Modal Tambah Kontak
+    const addContactBtn = document.getElementById('add-contact-btn');
+    const addContactModal = document.getElementById('add-contact-modal');
+    const cancelBtn = document.getElementById('cancel-add-contact-btn');
+    const submitBtn = document.getElementById('submit-add-contact-btn');
+    const searchInput = document.getElementById('search-contact-input');
 
-    // Pastikan elemen ada sebelum menambahkan event listener
-    if (sendButton) {
-        sendButton.addEventListener('click', sendMessage);
-    }
+    // Variabel untuk menyimpan state
+    let currentChatPartner = null;
 
-    if (messageInput) {
-        messageInput.addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') {
-                sendMessage();
+    // =================================================================
+    // BAGIAN 2: LOGIKA UTAMA & EVENT LISTENERS
+    // =================================================================
+
+    // Panggil fungsi ini saat halaman pertama kali dimuat
+    loadContacts();
+
+    // Event listeners untuk modal tambah kontak
+    if (addContactBtn && addContactModal && cancelBtn && submitBtn) {
+        addContactBtn.addEventListener('click', () => addContactModal.classList.remove('hidden'));
+        cancelBtn.addEventListener('click', () => addContactModal.classList.add('hidden'));
+        submitBtn.addEventListener('click', () => {
+            const emailToFind = searchInput.value.trim();
+            if (emailToFind) {
+                addContactToServer(emailToFind);
+                addContactModal.classList.add('hidden');
+                searchInput.value = '';
             }
         });
+    }
+
+    // Event listeners untuk mengirim pesan
+    if (sendButton && messageInput) {
+        sendButton.addEventListener('click', sendMessage);
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+    }
+
+    // =================================================================
+    // BAGIAN 3: KUMPULAN FUNGSI
+    // =================================================================
+
+    /**
+     * LOGIKA BARU: Mengambil daftar kontak dari server dan menampilkannya.
+     */
+    function loadContacts() {
+        const apiUrl = 'https://nama-proyek-anda.vercel.app/api/kontak'; // <-- ENDPOINT BARU
+        
+        // fetch(apiUrl)
+        // .then(response => response.json())
+        // .then(contacts => {
+            // Hapus kontak dummy sebelum menampilkan yang asli
+            // contactList.innerHTML = '';
+            // if (contacts.length === 0) {
+            //     contactList.innerHTML = `<p class="text-center text-gray-500 p-4">Anda belum memiliki kontak.</p>`;
+            // } else {
+            //     contacts.forEach(contact => {
+            //         const contactEl = document.createElement('div');
+            //         contactEl.className = 'flex items-center p-3 hover:bg-gray-200 rounded-lg cursor-pointer';
+            //         contactEl.innerHTML = `
+            //             <img src="${contact.avatar || 'https://cdn-icons-png.flaticon.com/512/149/149071.png'}" class="w-12 h-12 rounded-full mr-4">
+            //             <div>
+            //                 <p class="font-semibold text-gray-800">${contact.name}</p>
+            //                 <p class="text-sm text-gray-500 truncate">${contact.lastMessage || ''}</p>
+            //             </div>
+            //         `;
+            //         // Tambahkan event listener untuk membuka chat saat kontak diklik
+            //         contactEl.addEventListener('click', () => openChatWith(contact));
+            //         contactList.appendChild(contactEl);
+            //     });
+            // }
+        // })
+        // .catch(error => {
+        //     console.error('Gagal memuat kontak:', error);
+        //     contactList.innerHTML = `<p class="text-center text-red-500 p-4">Gagal memuat kontak.</p>`;
+        // });
+        
+        // Hapus kode di bawah ini jika fetch di atas sudah diaktifkan
+        contactList.innerHTML = `<p class="text-center text-gray-500 p-4">Memuat kontak...</p>`;
+    }
+
+    /**
+     * LOGIKA BARU: Membuka jendela chat dengan kontak yang dipilih.
+     */
+    function openChatWith(contact) {
+        currentChatPartner = contact;
+
+        // Ubah tampilan UI
+        contactList.classList.add('hidden');
+        addContactBtn.classList.add('hidden'); // Sembunyikan tombol tambah kontak
+        chatMessages.classList.remove('hidden');
+        chatInputArea.classList.remove('hidden');
+
+        // Ubah header chat
+        chatHeaderTitle.textContent = contact.name;
+        chatStatus.textContent = "Online"; // Anda bisa buat ini dinamis nanti
+
+        // Memuat riwayat chat dengan kontak ini
+        loadChatHistory(contact.id);
+    }
+    
+    /**
+     * LOGIKA BARU: Memuat riwayat chat dari server.
+     */
+    function loadChatHistory(contactId) {
+        chatMessages.innerHTML = ''; // Kosongkan chat sebelumnya
+        const apiUrl = `https://nama-proyek-anda.vercel.app/api/chats/${contactId}`; // <-- ENDPOINT BARU
+
+        // fetch(apiUrl)
+        // .then(response => response.json())
+        // .then(history => {
+        //     history.forEach(msg => addMessage(msg.text, msg.sender === 'me' ? 'sent' : 'received'));
+        // })
+        // .catch(error => console.error('Gagal memuat riwayat chat:', error));
+        
+        // Hapus kode di bawah ini jika fetch sudah diaktifkan
+        addMessage(`Ini adalah awal chat Anda dengan ${currentChatPartner.name}.`, 'received');
     }
 
     // Fungsi untuk mengirim pesan
     function sendMessage() {
         const messageText = messageInput.value.trim();
-
-        if (messageText !== '') {
-            // Tampilkan pesan yang dikirim di UI
+        if (messageText !== '' && currentChatPartner) {
             addMessage(messageText, 'sent');
             
-            // --- KONEKSI KE BACKEND ANDA ---
-            // Kode ini mengirimkan pesan ke server Anda di Vercel.
-            // PASTIKAN ANDA MENGGANTI URL DI BAWAH INI!
-            fetch('https://vercel.com/aprissilla4-pngs-projects/agin-travel-backend/42B6xakq9puxwFo6bDEvQQN2vkDf') 
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                // Pastikan body cocok dengan yang diharapkan backend Anda
-                body: JSON.stringify({ message: messageText, userId: 'user123' }) 
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log('Pesan berhasil dikirim ke server:', data);
-            })
-            .catch(error => {
-                console.error('Error saat mengirim pesan:', error);
-                // Opsional: tampilkan pesan error di UI jika gagal
-                // addMessage("Gagal mengirim pesan.", 'received'); 
-            });
-            // --- AKHIR DARI KONEKSI BACKEND ---
-
-            messageInput.value = ''; // Kosongkan input setelah dikirim
+            // Modifikasi fetch untuk mengirim pesan ke kontak yang tepat
+            const apiUrl = 'https://nama-proyek-anda.vercel.app/api/kirim-pesan';
+            // fetch(apiUrl, {
+            //     method: 'POST',
+            //     headers: { 'Content-Type': 'application/json' },
+            //     body: JSON.stringify({
+            //         message: messageText,
+            //         recipientId: currentChatPartner.id // Kirim ID penerima
+            //     })
+            // });
+            
+            messageInput.value = '';
+            messageInput.focus();
         }
     }
 
     // Fungsi untuk menambahkan gelembung pesan ke tampilan chat
     function addMessage(text, type) {
-        const messageContainer = document.createElement('div');
-        messageContainer.className = 'flex w-full mt-2 space-x-3 max-w-xs';
-
+        const container = document.createElement('div');
+        // ... (fungsi addMessage tetap sama)
+        container.className = 'w-full flex mb-3 justify-' + (type === 'sent' ? 'end' : 'start');
         const bubble = document.createElement('div');
-        bubble.innerText = text;
-
-        if (type === 'sent') {
-            messageContainer.classList.add('ml-auto', 'justify-end'); // Rata kanan
-            bubble.className = 'bg-orange-500 text-white p-3 rounded-l-lg rounded-br-lg';
-        } else { // 'received'
-            messageContainer.classList.add('justify-start'); // Rata kiri
-            bubble.className = 'bg-white text-gray-600 p-3 rounded-r-lg rounded-bl-lg shadow-sm';
-        }
-        
-        messageContainer.appendChild(bubble);
-        chatMessages.appendChild(messageContainer);
-
-        // Auto-scroll ke pesan terbaru
+        bubble.className = 'max-w-xs md:max-w-md p-3 rounded-2xl break-words ' + (type === 'sent' ? 'bg-orange-500 text-white' : 'bg-white text-gray-700 shadow-sm');
+        bubble.textContent = text;
+        container.appendChild(bubble);
+        chatMessages.appendChild(container);
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }
 
-    // --- TERIMA PESAN DARI BACKEND ---
-    // Anda perlu setup koneksi (misal: WebSocket) untuk menerima pesan real-time
-    // dan memanggil addMessage(pesanDiterima, 'received');
-    /* const socket = new WebSocket('wss://URL_WEBSOCKET_ANDA');
-    socket.onmessage = function(event) {
-        const messageData = JSON.parse(event.data);
-        // Pastikan tidak menampilkan pesan dari diri sendiri lagi
-        if (messageData.sender !== 'user123') { 
-             addMessage(messageData.text, 'received');
-        }
-    };
-    */
-    // --- AKHIR DARI PENERIMAAN PESAN ---
-
-    // Contoh pesan awal (bisa dihapus)
-    addMessage("Halo! Ada yang bisa kami bantu?", 'received');
+    // Fungsi untuk menambah kontak ke server
+    function addContactToServer(email) {
+        // ... (fungsi addContactToServer tetap sama)
+        const apiUrl = 'https://nama-proyek-anda.vercel.app/api/tambah-kontak';
+        fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email }) })
+        .then(res => res.json()).then(data => {
+            if (data.success) {
+                alert('Kontak berhasil ditambahkan!');
+                loadContacts(); // Muat ulang daftar kontak setelah berhasil menambah
+            } else {
+                alert(`Gagal: ${data.message}`);
+            }
+        }).catch(err => alert('Terjadi kesalahan.'));
+    }
 });
