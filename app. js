@@ -1,0 +1,23 @@
+const express = require('express');
+const cors = require('cors'); // 1. Impor paket cors
+const app = express();
+
+// 2. Gunakan middleware cors SEBELUM rute API Anda
+// Opsi paling sederhana (mengizinkan semua origin):
+app.use(cors());
+
+/*
+// Opsi yang lebih aman untuk production (hanya izinkan domain frontend Anda)
+const corsOptions = {
+  origin: 'http://localhost:8080' // atau 'https://domain-frontend-anda.com'
+};
+app.use(cors(corsOptions));
+*/
+
+
+app.use(express.json());
+
+// ... (kode rute Anda, contoh: app.post('/api/chat', ...)) ...
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
