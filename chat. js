@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
      * LOGIKA BARU: Mengambil daftar kontak dari server dan menampilkannya.
      */
     function loadContacts() {
-        const apiUrl = 'https://nama-proyek-anda.vercel.app/api/kontak'; // <-- ENDPOINT BARU
+        const apiUrl = 'https://vercel.com/aprissilla4-pngs-projects/andho_rakat/7yZRhnahvPx1n16fs2fEarAwZYTC'; // <-- ENDPOINT BARU
         
         // fetch(apiUrl)
         // .then(response => response.json())
