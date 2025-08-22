@@ -1,0 +1,14 @@
+[
+  {
+    "id": "user-abc-123",
+    "name": "Budi Santoso",
+    "avatar": "url_gambar_budi.jpg",
+    "lastMessage": "Oke, siap!"
+  },
+  {
+    "id": "user-def-456",
+    "name": "Ani Lestari",
+    "avatar": "url_gambar_ani.jpg",
+    "lastMessage": "Terima kasih infonya."
+  }
+]
