@@ -1,52 +1,98 @@
+// File: chat.js
 
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const Twilio = require('twilio');
+document.addEventListener('DOMContentLoaded', () => {
+    // Menghubungkan ke elemen HTML chat
+    const chatMessages = document.getElementById('chat-messages');
+    const messageInput = document.getElementById('message-input');
+    const sendButton = document.getElementById('send-button');
 
-const app = express();
-app.use(cors());
-app.use(express.json());
-
-const twilioClient = Twilio(process.env.TWILIO_API_KEY_SID, process.env.TWILIO_API_KEY_SECRET, { accountSid: process.env.TWILIO_ACCOUNT_SID });
-const AccessToken = Twilio.jwt.AccessToken;
-const ChatGrant = AccessToken.ChatGrant;
-
-// Endpoint untuk memberikan token chat ke user
-app.get('/token', (req, res) => {
-    const identity = req.query.identity; // Nama user atau ID unik
-    if (!identity) {
-        return res.status(400).send('Identity is required');
+    // Pastikan elemen ada sebelum menambahkan event listener
+    if (sendButton) {
+        sendButton.addEventListener('click', sendMessage);
     }
 
-    const chatGrant = new ChatGrant({
-        serviceSid: process.env.TWILIO_CONVERSATIONS_SERVICE_SID,
-    });
+    if (messageInput) {
+        messageInput.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    }
 
-    const token = new AccessToken(
-        process.env.TWILIO_ACCOUNT_SID,
-        process.env.TWILIO_API_KEY_SID,
-        process.env.TWILIO_API_KEY_SECRET,
-        { identity: identity }
-    );
+    // Fungsi untuk mengirim pesan
+    function sendMessage() {
+        const messageText = messageInput.value.trim();
 
-    token.addGrant(chatGrant);
-    res.send({ identity: identity, token: token.toJwt() });
+        if (messageText !== '') {
+            // Tampilkan pesan yang dikirim di UI
+            addMessage(messageText, 'sent');
+            
+            // --- KONEKSI KE BACKEND ANDA ---
+            // Kode ini mengirimkan pesan ke server Anda di Vercel.
+            // PASTIKAN ANDA MENGGANTI URL DI BAWAH INI!
+            fetch('https://nama-proyek-anda.vercel.app/api/kirim-pesan', { // <-- GANTI DENGAN URL API VERCEL ANDA
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                // Pastikan body cocok dengan yang diharapkan backend Anda
+                body: JSON.stringify({ message: messageText, userId: 'user123' }) 
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Pesan berhasil dikirim ke server:', data);
+            })
+            .catch(error => {
+                console.error('Error saat mengirim pesan:', error);
+                // Opsional: tampilkan pesan error di UI jika gagal
+                // addMessage("Gagal mengirim pesan.", 'received'); 
+            });
+            // --- AKHIR DARI KONEKSI BACKEND ---
+
+            messageInput.value = ''; // Kosongkan input setelah dikirim
+        }
+    }
+
+    // Fungsi untuk menambahkan gelembung pesan ke tampilan chat
+    function addMessage(text, type) {
+        const messageContainer = document.createElement('div');
+        messageContainer.className = 'flex w-full mt-2 space-x-3 max-w-xs';
+
+        const bubble = document.createElement('div');
+        bubble.innerText = text;
+
+        if (type === 'sent') {
+            messageContainer.classList.add('ml-auto', 'justify-end'); // Rata kanan
+            bubble.className = 'bg-orange-500 text-white p-3 rounded-l-lg rounded-br-lg';
+        } else { // 'received'
+            messageContainer.classList.add('justify-start'); // Rata kiri
+            bubble.className = 'bg-white text-gray-600 p-3 rounded-r-lg rounded-bl-lg shadow-sm';
+        }
+        
+        messageContainer.appendChild(bubble);
+        chatMessages.appendChild(messageContainer);
+
+        // Auto-scroll ke pesan terbaru
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // --- TERIMA PESAN DARI BACKEND ---
+    // Anda perlu setup koneksi (misal: WebSocket) untuk menerima pesan real-time
+    // dan memanggil addMessage(pesanDiterima, 'received');
+    /* const socket = new WebSocket('wss://URL_WEBSOCKET_ANDA');
+    socket.onmessage = function(event) {
+        const messageData = JSON.parse(event.data);
+        // Pastikan tidak menampilkan pesan dari diri sendiri lagi
+        if (messageData.sender !== 'user123') { 
+             addMessage(messageData.text, 'received');
+        }
+    };
+    */
+    // --- AKHIR DARI PENERIMAAN PESAN ---
+
+    // Contoh pesan awal (bisa dihapus)
+    addMessage("Halo! Ada yang bisa kami bantu?", 'received');
 });
-
-// Endpoint untuk mengirim SMS undangan
-app.post('/invite', async (req, res) => {
-    const { to, from, body } = req.body; // to: no teman, from: no Twilio, body: isi pesan
-    if (!to || !from || !body) {
-        return res.status(400).send('Missing parameters');
-    }
-    try {
-        await twilioClient.messages.create({ to, from, body });
-        res.send({ success: true, message: 'Invite sent!' });
-    } catch (error) {
-        console.error(error);
-        res.status(500).send({ success: false, message: 'Failed to send invite.' });
-    }
-});
-
-module.exports=app;
